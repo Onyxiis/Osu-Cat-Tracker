@@ -1,5 +1,7 @@
 const { app, BrowserWindow, screen } = require('electron');
+const { uIOhook } = require('uiohook-napi');
 const path = require('path');
+const { type } = require('os');
 
 let mainWindow;
 
@@ -27,10 +29,31 @@ function createWindow(){
   mainWindow.loadFile('index.html');
 }
 
+function setupInputHooks() {
+  uIOhook.on('keydown', (e) => {
+    mainWindow.webContents.send('key-event', {type: 'down', keycode: e.keycode});
+  });
+
+  uIOhook.on('keyup', (e) => {
+    mainWindow.webContents.send('key-event', { type: 'up', keycode: e.keycode});
+  });
+
+  uIOhook.on('mousedown', (e) => {
+    mainWindow.webContents.send('mouse-event', { type: 'down', button: e.button});
+  });
+  uIOhook.on('mouseup', (e) => {
+    mainWindow.webContents.send('mouse-event', { type: 'up', button: e.button});
+  });
+
+  uIOhook.start();
+}
+
 app.whenReady().then(() =>{
   createWindow();
+  setupInputHooks();
 });
 
 app.on('window-all-closed', () => {
+  uIOhook.stop();
   app.quit();
 });

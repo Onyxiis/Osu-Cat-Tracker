@@ -2,38 +2,99 @@
 <html>
   <head>
     <style>
-      html, body { margin: 0; background: transparent; overflow: hidden; }
-      #cat {position: relative; width: 500px; height: 350px;}
-      .paw {
-        position: absolute;
-        width: 80px; height: 80px;
-        background: pink;
-        border-radius: 50%;
-        bottom: 40px;
-        transition: transform 0.05s ease-out;
+      html, body { 
+        margin: 0; 
+        background: lime; 
+        overflow: hidden; 
+        width: 500px; 
+        height: 350px; 
       }
-      #leftPaw { left: 130px; }
-      #rightPaw { left: 290px; }
-      .paw.down {transform: translateY(20px) scale(1.1);}
+      
+      #cat { 
+        position: relative; 
+        width: 500px; 
+        height: 350px; 
+      }
+
+      #cat img {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 500px;
+        height: 350px;
+      }
+
+      #desk { z-index: 1; }
+      #tablet { z-index: 2; }
+      #keyboard { z-index: 2; }
+      #body { z-index: 3; }
+      
+      #mousePaw { 
+        z-index: 4; 
+        will-change: transform; 
+      }
+      
+      #clickPaw { 
+        z-index: 4; 
+        will-change: transform; 
+        transition: transform 0.05s ease-out; 
+      }
+
+      #clickPaw.left-press { transform: translate(-8px, 6px); }
+      #clickPaw.right-press { transform: translate(8px, 6px); }
+      #clickPaw.both-press { transform: translate(0px, 10px); }
     </style>
   </head>
   <body>
     <div id="cat">
-      <div class="paw" id="leftPaw"></div>
-      <div class="paw" id="rightPaw"></div>
+      <img id="desk" src="assets/desk.png">
+      <img id="tablet" src="assets/tablet.png">
+      <img id="keyboard" src="assets/keyboard.png">
+      <img id="body" src="assets/body.png">
+      <img id="mousePaw" src="assets/mousepaw.png">
+      <img id="clickPaw" src="assets/clickpaw.png">
     </div>
 
     <script>
       const LEFT_KEYS = new Set([44]);
       const RIGHT_KEYS = new Set([45]);
 
-      const leftPaw = document.getElementById('leftPaw');
-      const rightPaw = document.getElementById('rightPaw');
+      let leftPressed = false;
+      let rightPressed = false;
 
-      window.bongoAPI.onKeyEvent(({ type, keycode}) => {
-        if (LEFT_KEYS.has(keycode)) leftPaw.classList.toggle('down', type === 'down');
-        if (RIGHT_KEYS.has(keycode)) rightPaw.classList.toggle('down', type === 'down');
+      window.bongoAPI.onKeyEvent(({ type, keycode }) => {
+        if (LEFT_KEYS.has(keycode)) leftPressed = (type === 'down');
+        if (RIGHT_KEYS.has(keycode)) rightPressed = (type === 'down');
+
+        const clickPaw = document.getElementById('clickPaw');
+        clickPaw.className = '';
+
+        if (leftPressed && rightPressed) {
+            clickPaw.classList.add('both-press');
+        } else if (leftPressed) {
+            clickPaw.classList.add('left-press');
+        } else if (rightPressed) {
+            clickPaw.classList.add('right-press');
+        }
       });
+
+      function clamp01(v) { return Math.min(1, Math.max(0, v)); }
+
+      function updateMousePaw(cursorX, cursorY) {
+        const SCREEN_WIDTH = window.screen.width || 1920;
+        const SCREEN_HEIGHT = window.screen.height || 1080;
+
+        const fx = clamp01(cursorX / SCREEN_WIDTH);
+        const fy = clamp01(cursorY / SCREEN_HEIGHT);
+
+        const moveX = (fx - 0.5) * 55;
+        const moveY = (fy - 0.5) * 35; 
+
+        const paw = document.getElementById('mousePaw');
+        paw.style.transform = `translate(${moveX}px, ${moveY}px)`;
+      }
+
+      window.bongoAPI.onMouseMove(({ x, y }) => updateMousePaw(x, y));
     </script>
   </body>
 </html>

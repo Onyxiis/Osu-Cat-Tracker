@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      html, body { margin: 0; background: transparent; overflow: hidden; }
+      #cat {position: relative; width: 500px; height: 350px;}
+      .paw {
+        position: absolute;
+        width: 80px; height: 80px;
+        background: pink;
+        border-radius: 50%;
+        bottom: 40px;
+        transition: transform 0.05s ease-out;
+      }
+      #leftPaw { left: 130px; }
+      #rightPaw { left: 290px; }
+      .paw.down {transform: translateY(20px) scale(1.1);}
+    </style>
+  </head>
+  <body>
+    <div id="cat">
+      <div class="paw" id="leftPaw"></div>
+      <div class="paw" id="rightPaw"></div>
+    </div>
+
+    <script>
+      const LEFT_KEYS = new Set([44]);
+      const RIGHT_KEYS = new Set([45]);
+
+      const leftPaw = document.getElementById('leftPaw');
+      const rightPaw = document.getElementById('rightPaw');
+
+      window.bongoAPI.onKeyEvent(({ type, keycode}) => {
+        if (LEFT_KEYS.has(keycode)) leftPaw.classList.toggle('down', type === 'down');
+        if (RIGHT_KEYS.has(keycode)) rightPaw.classList.toggle('down', type === 'down');
+      });
+    </script>
+  </body>
+</html>

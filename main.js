@@ -16,7 +16,7 @@ function createWindow(){
     transparent: true,
     frame: false,
     alwaysOnTop: true,
-    skipTaskbar: true,
+    skipTaskbar: false,
     resizable: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -33,6 +33,7 @@ function setupInputHooks() {
   uIOhook.on('keydown', (e) => {
     mainWindow.webContents.send('key-event', {type: 'down', keycode: e.keycode});
   });
+  
 
   uIOhook.on('keyup', (e) => {
     mainWindow.webContents.send('key-event', { type: 'up', keycode: e.keycode});

@@ -30,11 +30,21 @@ function createWindow(){
 }
 
 function setupInputHooks() {
+  
+  let lastSent = 0;
+uIOhook.on('mousemove', (e) => {
+  const now = Date.now();
+  if (now - lastSent > 16) {
+    mainWindow.webContents.send('mouse-move', { x: e.x, y: e.y });
+    lastSent = now;
+  }
+});
+  
+  
   uIOhook.on('keydown', (e) => {
     mainWindow.webContents.send('key-event', {type: 'down', keycode: e.keycode});
   });
   
-
   uIOhook.on('keyup', (e) => {
     mainWindow.webContents.send('key-event', { type: 'up', keycode: e.keycode});
   });
